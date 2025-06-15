@@ -1,0 +1,209 @@
+/* --- Global Styles & Variables --- */
+:root {
+    --bg-color: #1a1a2e;
+    --board-color: #16213e;
+    --tile-color: #0f3460;
+    --tile-hover-color: #1e4a8a;
+    --playerX-color: #e94560;
+    --playerO-color: #53bf9d;
+    --text-color: #dcdcdc;
+    --line-color: #ffffff;
+    --font-family: 'Poppins', sans-serif;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+/* --- Core Layout: Flexbox --- */
+.background {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem; /* Consistent spacing between all elements */
+}
+
+/* --- Title, Score & Messages --- */
+.title {
+    font-size: clamp(2rem, 10vw, 3rem); /* Responsive font size */
+}
+
+.score, .display {
+    font-size: clamp(1rem, 5vw, 1.2rem);
+}
+
+.message-container {
+    height: 2.5rem;
+    width: 100%;
+    position: relative;
+    text-align: center;
+}
+
+.display {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.display.hide {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+.display-player { font-weight: 600; }
+.playerX { color: var(--playerX-color); }
+.playerO { color: var(--playerO-color); }
+
+/* --- Responsive Game Board & Winning Line --- */
+.board-wrapper {
+    position: relative;
+    width: 90vw; /* Responsive width */
+    max-width: 400px; /* Max size on large screens */
+    aspect-ratio: 1 / 1; /* Always a perfect square */
+}
+
+.container {
+    position: absolute;
+    inset: 0; /* shorthand for top/right/bottom/left: 0 */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 10px;
+    padding: 10px;
+    background-color: var(--board-color);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.tile {
+    background-color: var(--tile-color);
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    transform: scale(1);
+}
+
+.tile:hover {
+    background-color: var(--tile-hover-color);
+    transform: scale(1.05);
+}
+
+.tile.playerX, .tile.playerO { cursor: not-allowed; }
+.tile.playerX { color: var(--playerX-color); }
+.tile.playerO { color: var(--playerO-color); }
+
+/* --- X and O Symbol Animation --- */
+.tile svg {
+    width: 70%; /* Scale symbols with the tile */
+    height: 70%;
+}
+
+.tile svg path, .tile svg circle {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: drawSymbol 0.5s ease-out forwards;
+}
+
+@keyframes drawSymbol {
+    to { stroke-dashoffset: 0; }
+}
+
+/* --- Winning Line Animation --- */
+.winning-line-svg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+#winning-line {
+    stroke: var(--line-color);
+    stroke-width: 6; /* SVG units, scales well */
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 5px var(--line-color));
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.47, 0, 0.745, 0.715);
+}
+
+/* --- Controls Layout --- */
+.controls-wrapper {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mode-control {
+    display: flex;
+    border: 1px solid var(--board-color);
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+button {
+    background-color: transparent;
+    border: none;
+    color: var(--text-color);
+    padding: 0.7rem 1.5rem;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+button:hover {
+    transform: translateY(-2px);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+#reset {
+    background-color: var(--tile-color);
+    border-radius: 25px;
+}
+#reset:hover {
+    background-color: var(--tile-hover-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.mode-btn.active {
+    background-color: var(--playerO-color);
+    color: var(--board-color);
+}
+
+/* --- Modal Styles (Unchanged but work with new layout) --- */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center;
+    z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+}
+.modal-overlay:not(.hide) { opacity: 1; pointer-events: all; }
+.modal-content {
+    background: var(--board-color); padding: 2rem 3rem; border-radius: 10px;
+    text-align: center; box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+    transform: translateY(20px); opacity: 0; transition: all 0.4s ease;
+}
+.modal-overlay:not(.hide) .modal-content { transform: translateY(0); opacity: 1; }
+.modal-content h2 { margin-bottom: 1.5rem; }
+.modal-buttons { display: flex; gap: 1rem; }
+.choice-btn {
+    font-size: 2rem; font-weight: 600; width: 80px; height: 80px;
+    border-radius: 10px; background: var(--tile-color);
+}
+#chooseX { color: var(--playerX-color); }
+#chooseO { color: var(--playerO-color); }
